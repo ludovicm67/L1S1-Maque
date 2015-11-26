@@ -190,7 +190,7 @@ fi
 MAKEFILE_CONTENT=`grep -v '^ *$' "$MAKEFILE_NAME" | grep -v '^#'`
 
 
-# Fonction récursive qui va parcourir l'ensemble des cibles, etc...
+# FONCTION RECURSIVE QUI VA PARCOURIR L'ENSEMBLE DES CIBLES, ETC...
 ## Args: $1=nom de la cible; $2=nom de la cible ayant besoin de $1 (optionel)
 ## Return: 0 si la cible ne doit pas être reconstruite, 1 sinon
 walkCible () {
