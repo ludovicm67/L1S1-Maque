@@ -3,7 +3,7 @@
                     #####################################
                     #                                   #
                     #   PROJET PSE : La commande make   #
-                    #     Ludovic Muller (ludmuller)    #
+                    #           Ludovic Muller          #
                     #                                   #
                     #####################################
 
@@ -17,11 +17,16 @@ fi
 
 
 # INITIALISATION DE CERTAINES VARIABLES :
-MAKEFILE_SCRIPTNAME=`basename -s .sh $0`    # Nom du script, pour les erreurs
-MAKEFILE_EXECUTECMD=true                    # Pour l'opt -n, on la passe à false
-MAKEFILE_CONTINUEIFERROR=false              # Pour l'opt -k, on la passe à true
-MAKEFILE_CONTENT=""                         # Contiendra le contenu du makefile
-LIST_CMDS=""                                # Contiendra l'ensemble des cmds
+## Nom du script, pour les erreurs
+MAKEFILE_SCRIPTNAME=`basename -s .sh $0`
+## Pour l'opt -n, on la passe à false
+MAKEFILE_EXECUTECMD=true
+## Pour l'opt -k, on la passe à true
+MAKEFILE_CONTINUEIFERROR=false
+## Contiendra le contenu du makefile
+MAKEFILE_CONTENT=""
+## Contiendra l'ensemble des cmds
+LIST_CMDS=""
 
 
 # INITIALISATION DE CERTAINES FONCTIONS :
@@ -120,7 +125,8 @@ findCible () {
 
     CIBLE="$MAKEFILE_CONTENT"
 
-    LINE_CIBLE=`echo "$CIBLE" | grep -nm1 "^$1:" | sed s/:.*//`
+    CIBLE_NAME=`echo "$1" | sed 's/\./\\\./g'`
+    LINE_CIBLE=`echo "$CIBLE" | grep -nm1 "^$CIBLE_NAME:" | sed s/:.*//`
 
     if [ -z "$LINE_CIBLE" ]; then
         return 1
@@ -197,10 +203,16 @@ walkCible () {
     local CMDS=""
     local DEPS=""
 
+    # Si la cible n'a pas été trouvée dans le fichier Makefile
     if [ "$RETURN_VALUE" -eq 1 ]; then
+        # On verifie si walkCible a été appelé à partir d'une autre cible
         if [ -n "$2" ]; then
+            # On vérifie si la cible appelée est un fichier
             if [ -f "$1" ]; then
+                # On vérifie si la cible appelante est un fichier
                 if [ -f "$2" ]; then
+                    # Vérifie si la cible appelée est plus récente que la cible
+                    # appelante.
                     IS_NEWER="`find "$1" -newer "$2" | wc -l`"
                     if [ $IS_NEWER -ne 0 ]; then
                         RETURN_CODE=1
@@ -214,27 +226,29 @@ walkCible () {
         else
             showError noRule "$1"
         fi
+        
     else
 
-        if [ -n "$2" ]; then
-            if [ -f "$1" ]; then
-                if [ -f "$2" ]; then
-                    IS_NEWER="`find "$1" -newer "$2" | wc -l`"
-                    if [ $IS_NEWER -ne 0 ]; then
-                        RETURN_CODE=1
-                    fi
-                fi
+        # Si c'est une dépendence (ou sous-dependence) de la première cible, et
+        # que la cible courante et la cible dont elle dépend sont des fichiers
+        if [ -n "$2" ] && [ -f "$1" ] && [ -f "$2" ]; then
+            IS_NEWER="`find "$1" -newer "$2" | wc -l`"
+            if [ $IS_NEWER -ne 0 ]; then
+                RETURN_CODE=1
             fi
         fi
 
+        # On initialise les variables contenant les commandes et les dépendences
         CMDS="`echo "$CIBLE_CONTENT" | grep -P "^\t" | sed "s/^[[:space:]]*//"`"
         DEPS="`echo "$CIBLE_CONTENT" | sed "2,$"d | sed "s/^$1:[[:space:]]*//"`"
 
+        # S'il n'y a pas de dépendences, il faudra exécuter les commandes
         if [ -z "$DEPS" ]; then
             RETURN_CODE=1
         else
 
             local DEP
+            # On parcourt l'ensemble des dépendences
             for DEP in $DEPS; do
 
                 walkCible "$DEP" "$1"
@@ -249,18 +263,18 @@ walkCible () {
         fi
     fi
 
-    if [ -z "$2" ]; then
-        RETURN_CODE=1
+    # Si c'est la première dépendence et que tout est à jour...
+    if [ -z "$2" ] && [ "$RETURN_CODE" -eq 0 ]; then
+		echo "La cible '$1' est deja a jour !"
     fi
 
+    # On ajoute les commandes de la cible si $RETURN_CODE vaut 1
     if [ "$RETURN_CODE" -eq 1 ]; then
 
-# On ajoute les commandes à exécuter plus tard
-while read CMD; do
-    addCmd "$CMD"
-done <<EOT
-$CMDS
-EOT
+        local IFS='\n'
+        for CMD in "$CMDS"; do
+            addCmd "$CMD"
+        done
 
     fi
 
