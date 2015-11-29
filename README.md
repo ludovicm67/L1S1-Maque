@@ -2,8 +2,8 @@
 Projet de PSE pour l'université : recréer la commande make en version simplifiée
 
 ## Utilisation
-Il suffit d'appeler le script en passant en argument la cible que l'on souhaite construire, de la façon suivante :
-`./maque.sh maCible`
+Il suffit d'appeler le script en passant en argument la cible que l'on souhaite construire, de la façon suivante : `./maque.sh maCible`.
+
 Un fichier `Makefile` est fournie pour permettre différents tests, pour voir que tout fonctionne normalement comme prévu.
 
 ## Options
