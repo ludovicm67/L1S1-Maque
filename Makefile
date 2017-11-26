@@ -35,4 +35,3 @@ testOptionK:
 	echo "ceci doit toujours s'afficher"
 	rm fichierInexistant
 	echo "Ceci doit s'executer seulement si l'option -k est active"
-
