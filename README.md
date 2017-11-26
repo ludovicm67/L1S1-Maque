@@ -1,7 +1,7 @@
 `maque.sh`
 ==========
 
-> Projet de PSE pour l'université : recréer la commande make en version
+> Projet de PSE pour l'université : recréer la commande `make` en version
 > simplifiée.
 
 ## Utilisation
@@ -22,3 +22,9 @@ De plus, il est possible de passer des options, qui sont les suivantes :
     erreur.
   * `-n` ou `--just-print` pour lister seulement les commandes, sans les
     exécuter.
+
+## Exemple d'utilisation
+
+Voici un exemple d'utilisation avec le fichier [`Makefile`](./Makefile) :
+
+![demo](./demo.gif)
